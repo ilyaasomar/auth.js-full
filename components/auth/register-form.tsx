@@ -7,7 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 
-import { LoginSchema } from "@/schemas";
+import { RegisterSchema } from "@/schemas";
 import { Input } from "@/components/ui/input";
 import {
   Form,
@@ -22,35 +22,31 @@ import { Button } from "@/components/ui/button";
 import { FormError } from "@/components/form-error";
 import { FormSuccess } from "@/components/form-success";
 import { login } from "@/actions/login";
+import { register } from "@/actions/register";
 // import { login } from "@/actions/login";
 
-export const LoginForm = () => {
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl");
-  const urlError = searchParams.get("error") === "OAuthAccountNotLinked"
-    ? "Email already in use with different provider!"
-    : "";
+export const RegisterForm = () => {
 
   const [showTwoFactor, setShowTwoFactor] = useState(false);
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
 
-  const form = useForm<z.infer<typeof LoginSchema>>({
-    resolver: zodResolver(LoginSchema),
+  const form = useForm<z.infer<typeof RegisterSchema>>({
+    resolver: zodResolver(RegisterSchema),
     defaultValues: {
       email: "",
       password: "",
+      name: "",
     },
   });
 
-  const onSubmit = (values: z.infer<typeof LoginSchema>) => {
+  const onSubmit = (values: z.infer<typeof RegisterSchema>) => {
     setError("");
     setSuccess("");
-    login(values)
     
 startTransition(()=>{
-login(values)
+register(values)
 .then((data)=>{
   setError(data.error)
   setSuccess(data.success)
@@ -63,9 +59,9 @@ login(values)
 
   return (
     <CardWrapper
-      headerLabel="Welcome back"
-      backButtonLabel="Don't have an account?"
-      backButtonHref="/auth/register"
+      headerLabel="Create an Account"
+      backButtonLabel="Already have an account?"
+      backButtonHref="/auth/login"
       showSocial
     >
       <Form {...form}>
@@ -74,8 +70,26 @@ login(values)
           className="space-y-6"
         >
           <div className="space-y-4">
-           
+        
               <>
+              <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Name</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          disabled={isPending}
+                          placeholder="John Doe"
+                          type="name"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="email"
@@ -131,7 +145,7 @@ login(values)
             type="submit"
             className="w-full"
           >
-            {showTwoFactor ? "Confirm" : "Login"}
+            Create an account
           </Button>
         </form>
       </Form>
