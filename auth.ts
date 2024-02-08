@@ -25,6 +25,18 @@ export const {
     },
   },
   callbacks: {
+    async signIn({ user, account }) {
+      // allow OAuth without email verification
+      if (account?.provider !== "credentials") return true;
+
+      const existingUser = await getUserById(user.id);
+
+      // provent sign in without email verification
+      if (!existingUser?.emailVerified) return false;
+
+      // TODO: add 2FA check
+    },
+
     async session({ token, session }) {
       console.log({ sessionToken: token });
 
